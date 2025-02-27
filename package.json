@@ -1,0 +1,32 @@
+{
+  "name": "@waystation/mcp",
+  "version": "0.2.0",
+  "homepage": "https://waystation.ai/connect/mcp",
+  "description": "MCP server for WayStation",
+  "main": "index.js",
+  "bin": {
+    "mcp": "build/index.js"
+  },
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "build"
+  ],
+  "keywords": [
+    "mcp",
+    "modelcontextprotocol",
+    "waystation"
+  ],
+  "author": "WayStation <support@waystation.ai> (https://waystation.ai)",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.5.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}

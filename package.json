@@ -1,6 +1,6 @@
 {
   "name": "@waystation/mcp",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "homepage": "https://waystation.ai/connect/mcp",
   "description": "MCP server for WayStation",
   "main": "index.js",

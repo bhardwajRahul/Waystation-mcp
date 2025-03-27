@@ -10,7 +10,17 @@ import * as os from 'os';
 
 const API_BASE = process.env.WAY_BASE || "https://waystation.ai";
 
-const tokenPath = path.join(os.homedir(), '.waystation', 'token');
+// Function to get platform-specific WayStation paths
+function getWayStationPath(fileName?: string): string {
+    const basePath = os.platform() === 'win32'
+        ? path.join(process.env.APPDATA || '', 'WayStation')
+        : path.join(os.homedir(), '.waystation');
+    
+    return fileName ? path.join(basePath, fileName) : basePath;
+}
+
+// Get the token path
+const tokenPath = getWayStationPath('token');
 let lastTokenModifiedTime: number | null = null;
 let tokenKey: string | null = null;
 
@@ -129,19 +139,30 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     } else if (request.params.name === "openWayStation") {
         try {
             // Create config directory if it doesn't exist
-            const configDir = path.join(os.homedir(), '.waystation');
+            const configDir = getWayStationPath();
             fs.mkdirSync(configDir, { recursive: true });
             
             // Check and update onboarding state
-            const onboardingFile = path.join(configDir, 'onboarding_completed');
+            const onboardingFile = getWayStationPath('onboarding_completed');
             const onboardingCompleted = fs.existsSync(onboardingFile);
             
             if (!onboardingCompleted) {
                 fs.writeFileSync(onboardingFile, 'true');
             }
             
-            // AppleScript to activate WayStation
-            const applescript = `tell application "WayStation" to activate
+            // Platform-specific code to open WayStation
+            if (os.platform() === 'win32') {
+                // Windows: Use start command to open WayStation
+                try {
+                    const programFiles = process.env['ProgramFiles'] || 'C:\\Program Files';
+                    const wayStationPath = path.join(programFiles, 'WayStation', 'WayStation.exe');
+                    execSync(`start "" "${wayStationPath}"`, { shell: 'cmd.exe' });
+                } catch (innerError) {
+                    throw new Error(`Failed to open WayStation on Windows: ${innerError instanceof Error ? innerError.message : String(innerError)}`);
+                }
+            } else if (os.platform() === 'darwin') {
+                // macOS: Use AppleScript to activate WayStation
+                const applescript = `tell application "WayStation" to activate
 delay 0.5
 
 tell application "System Events"
@@ -153,13 +174,16 @@ tell application "System Events"
         set frontmost of wayProcess to true
     end if
 end tell`;
-            
-            // Function to escape only double quotes in AppleScript
-            function escapeAppleScriptString(str: string): string {
-                return str.replace(/"/g, '\\"');
+                
+                // Function to escape only double quotes in AppleScript
+                function escapeAppleScriptString(str: string): string {
+                    return str.replace(/"/g, '\\"');
+                }
+                
+                execSync(`osascript -e "${escapeAppleScriptString(applescript)}"`);
+            } else {
+                throw new Error(`Unsupported platform: ${os.platform()}`);
             }
-            
-            execSync(`osascript -e "${escapeAppleScriptString(applescript)}"`);
             
             return { 
                 error: false, 

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "ai.waystation/mcp",
+  "description": "Ultimate toolbox to connect your LLM to popular productivity tools such as Monday, AirTable, Slack",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/waystation-ai/mcp",
+    "source": "github"
+  },
+  "version": "0.3.1",
+  "remotes": [
+    {
+      "url": "https://waystation.ai/mcp",
+      "type": "streamable-http"
+    },
+    {
+      "url": "https://waystation.ai/mcp/sse",
+      "type": "sse"
+    }
+  ]
+}
